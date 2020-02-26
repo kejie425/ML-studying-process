@@ -1,0 +1,86 @@
+import numpy as np
+from math import sqrt
+
+file_name_2 = 'C-doped-Si-6th.txt'
+
+g1 = 16.2920989990000002
+
+x,y,z = np.loadtxt(file_name_2,unpack = 'true')
+x_Si = x[0:214]
+y_Si = y[0:214]
+z_Si = z[0:214]
+u,v,w = np.loadtxt(file_name_2,unpack = 'true')
+u_Si = u[0:214]
+v_Si = v[0:214]
+w_Si = w[0:214]
+u_C = u[214:216]
+v_C = v[214:216]
+w_C = w[214:216]
+'''Find all the bonds in the periodic boundary condition'''
+for i in range(len(u_Si)):
+    if u_Si[i] < 0.1:
+        a = u_Si[i]+1
+        u_Si = np.append(u_Si,a)
+        b = v_Si[i]
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]
+        w_Si = np.append(w_Si, c)
+    if u_Si[i] > 0.9:
+        a = u_Si[i] - 1
+        u_Si = np.append(u_Si, a)
+        b = v_Si[i]
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]
+        w_Si = np.append(w_Si, c)
+
+for i in range(len(u_Si)):
+    if v_Si[i] < 0.1:
+        a = u_Si[i]
+        u_Si = np.append(u_Si,a)
+        b = v_Si[i]+1
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]
+        w_Si = np.append(w_Si, c)
+    if v_Si[i] >0.9:
+        a = u_Si[i]
+        u_Si = np.append(u_Si, a)
+        b = v_Si[i]-1
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]
+        w_Si = np.append(w_Si, c)
+
+for i in range(len(u_Si)):
+    if w_Si[i] < 0.1:
+        a = u_Si[i]
+        u_Si = np.append(u_Si,a)
+        b = v_Si[i]
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]+1
+        w_Si = np.append(w_Si, c)
+    if w_Si[i] >0.9:
+        a = u_Si[i]
+        u_Si = np.append(u_Si, a)
+        b = v_Si[i]
+        v_Si = np.append(v_Si, b)
+        c = w_Si[i]-1
+        w_Si = np.append(w_Si, c)
+
+bond = 0
+sum1  = 0
+sum2 = 0
+'''Sb-Te bonds'''
+for i in range(len(x_Si)):
+    for j in range(len(u_Si)):
+        r2 = g1*sqrt((u_Si[j]-x_Si[i])**2+(v_Si[j]-y_Si[i])**2+(w_Si[j]-z_Si[i])**2)
+        if r2<2.5 and r2>0:
+            bond = bond +1
+            sum1 = sum1 + 0.5 * (r2-2.35)**2
+bond = bond/2
+sum1 = sum1/2
+for i in range(len(u_C)):
+    for j in range(len(x_Si)):
+        r2 = g1*sqrt((u_C[i]-x_Si[j])**2+(v_C[i]-y_Si[j])**2+(w_C[i]-z_Si[j])**2)
+        if r2<3 and r2>0:
+            bond = bond +1
+            sum2 = sum2 + 0.5 * (r2-1.55)**2
+print(bond,10*sum1,10*sum2,10*(sum1+sum2))
